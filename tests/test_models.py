@@ -3,9 +3,15 @@
 import numpy as np
 import numpy.testing as npt
 from unittest.mock import patch
+import pytest
 
-def test_daily_mean_zeros():
-    """Test that mean function works for an array of zeros."""
+@pytest.mark.parametrize("test, expected",
+    [
+        ([[0,0],[0,0],[0,0]],[0,0]),
+        ([[1,2],[3,4],[5,6]],[3,4]),
+    ])
+def test_daily_mean(test,expected):
+    """Test that mean function works."""
     from inflammation.models import daily_mean
 
     # NB: the comment 'yapf: disable' disables automatic formatting using
@@ -15,19 +21,29 @@ def test_daily_mean_zeros():
                            [0, 0]])  # yapf: disable
 
     # Need to use Numpy testing functions to compare arrays
-    npt.assert_array_equal(np.array([0, 0]), daily_mean(test_array))
+    npt.assert_array_equal(np.array(expected), daily_mean(np.array(test)))
 
-
-def test_daily_mean_integers():
-    """Test that mean function works for an array of positive integers."""
-    from inflammation.models import daily_mean
-
-    test_array = np.array([[1, 2],
-                           [3, 4],
-                           [5, 6]])  # yapf: disable
-
+@pytest.mark.parametrize("test, expected",
+    [
+        ([[0,0,0],[0,0,0],[0,0,0]],[0,0,0]),
+        ([[3,4,5],[10,60,20],[20,1,5]],[20,60,20]),
+    ])
+def test_daily_max(test,expected):
+    """Test that the maximum function works."""
+    from inflammation.models import daily_max
     # Need to use Numpy testing functions to compare arrays
-    npt.assert_array_equal(np.array([3, 4]), daily_mean(test_array))
+    npt.assert_array_equal(np.array(expected),daily_max(np.array(test)))
+
+@pytest.mark.parametrize("test, expected",
+    [
+        ([[0,0,0],[0,0,0],[0,0,0]],[0,0,0]),
+        ([[1,2,4],[3,4,6],[-1,-2,6]],[-1,-2,4]),
+    ])
+def test_daily_min(test,expected):
+    """Test that the maximum function works."""
+    from inflammation.models import daily_min
+    # Need to use Numpy testing functions to compare arrays
+    npt.assert_array_equal(np.array(expected),daily_min(np.array(test)))
 
 @patch('inflammation.models.get_data_dir', return_value='/data_dir')
 def test_load_csv(mock_get_data_dir):
